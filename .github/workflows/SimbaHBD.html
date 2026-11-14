@@ -1,1 +1,209 @@
+<title>Simbo's Birthday Card</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=Caveat:wght@600&display=swap">
+<style>
+/* Layout: one calm column on a night-green ground. Meskel daisy petals drift behind; the letter is the centrepiece. */
+:root {
+  --ground: #0e1c1d;
+  --surface: #162829;
+  --line: #28403f;
+  --ink: #f1ece2;
+  --muted: #a7b8b1;
+  --marigold: #f3b941;
+  --leaf: #6fb08a;
+  --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-hand: "Caveat", "Segoe Script", "Bradley Hand", cursive;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.65;
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+#petals { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; padding-block: 48px 40px; }
 
+.hero { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+.date {
+  font-family: var(--f-body); font-weight: 500; font-size: 13px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--marigold); display: flex; align-items: center; gap: 10px;
+}
+.date svg { width: 22px; height: 22px; flex: none; }
+h1 {
+  font-family: var(--f-display); font-weight: 800; font-size: clamp(2.9rem, 13vw, 5.4rem);
+  line-height: .98; letter-spacing: -.02em; margin: 0; text-wrap: balance;
+}
+h1 span { color: var(--marigold); }
+.sub { color: var(--muted); margin: 0; max-width: 34ch; font-size: 1.08rem; }
+button.go {
+  font: inherit; font-weight: 500; font-size: 1rem; cursor: pointer;
+  background: var(--marigold); color: #1b1606; border: 0; border-radius: 999px;
+  padding: 13px 26px; margin-top: 6px; transition: transform .15s ease, background .15s ease;
+}
+button.go:hover { transform: translateY(-2px); background: #f7c761; }
+button.go:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.letter { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: clamp(24px, 6vw, 44px); display: flex; flex-direction: column; gap: 18px; }
+.letter .to { font-family: var(--f-hand); font-size: 2rem; line-height: 1; color: var(--marigold); margin: 0; }
+.letter p { margin: 0; max-width: 60ch; }
+.letter .sign { font-family: var(--f-hand); font-size: 1.9rem; line-height: 1.1; color: var(--ink); margin-top: 6px; }
+
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -.01em; margin: 0 0 6px; text-wrap: balance; }
+.wishes { display: flex; flex-direction: column; gap: 4px; }
+.wishes ul { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.wishes li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start; min-width: 0; }
+.wishes li svg { width: 28px; height: 28px; margin-top: 2px; }
+.wishes li b { display: block; font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; }
+.wishes li span { color: var(--muted); }
+
+.end { text-align: left; padding-top: 8px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.end .big { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.6rem, 7vw, 2.3rem); letter-spacing: -.01em; margin: 14px 0 0; text-wrap: balance; }
+.end p { margin: 0; color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero > * { animation: rise .7s ease both; }
+  .hero > *:nth-child(2) { animation-delay: .08s; }
+  .hero > *:nth-child(3) { animation-delay: .16s; }
+  .hero > *:nth-child(4) { animation-delay: .24s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="daisy" viewBox="-20 -20 40 40">
+    <g fill="#f3b941">
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(45)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(90)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(135)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(225)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(270)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(315)"/>
+    </g>
+    <circle r="4.6" fill="#6fb08a"/>
+  </symbol>
+</svg>
+
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<main>
+  <header class="hero">
+    <div class="date"><svg><use href="#daisy"/></svg> November 19</div>
+    <h1>Happy birthday, <span>Simbo.</span></h1>
+    <p class="sub">A small card, made only for you. Take your time with it.</p>
+    <button class="go" id="celebrate" type="button">Celebrate</button>
+  </header>
+
+  <section class="letter" aria-label="A letter for Simbo">
+    <p class="to">Dear Simbo,</p>
+    <p>Another year, and I still think about how lucky I am to have you. You have a way of making ordinary days feel lighter, and you do it without trying.</p>
+    <p>I don't say it often enough, so I'm putting it here: thank you. For the laughs, for being honest with me, and for being someone I can be completely myself around.</p>
+    <p>I hope this year is gentle with you and generous too. I hope you get the rest you've earned, the good news you've been waiting on, and plenty of days where nothing needs fixing.</p>
+    <p>Happy birthday. I'm cheering for you, today and every day after.</p>
+    <p class="sign">With love, your friend</p>
+  </section>
+
+  <section class="wishes">
+    <h2>Three wishes for your year</h2>
+    <ul>
+      <li><svg><use href="#daisy"/></svg><div><b>Rest that actually helps</b><span>The kind that leaves you light when you wake up.</span></div></li>
+      <li><svg><use href="#daisy"/></svg><div><b>Good news, right on time</b><span>Everything you're hoping for, arriving without making you wait too long.</span></div></li>
+      <li><svg><use href="#daisy"/></svg><div><b>People who show up</b><span>The way you always do for everyone else.</span></div></li>
+    </ul>
+  </section>
+
+  <footer class="end">
+    <p class="big">You are loved, Simbo.</p>
+    <p>Meskel daisies bloom around now. Fitting, for a birthday in November.</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var canvas = document.getElementById('petals');
+  var ctx = canvas.getContext('2d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0, petals = [], bits = [], running = false;
+  var COLORS = ['#f3b941', '#6fb08a', '#f1ece2', '#e48b5c'];
+
+  function resize() {
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function makePetal(top) {
+    return {
+      x: Math.random() * W, y: top ? -20 : Math.random() * H,
+      s: 5 + Math.random() * 6, vy: .25 + Math.random() * .45, vx: -.15 + Math.random() * .3,
+      r: Math.random() * 6.28, vr: (Math.random() - .5) * .02, sw: Math.random() * 6.28
+    };
+  }
+  function init() {
+    resize();
+    petals = [];
+    var n = Math.round(Math.min(34, Math.max(16, W / 26)));
+    for (var i = 0; i < n; i++) petals.push(makePetal(false));
+  }
+  function burst() {
+    for (var i = 0; i < 110; i++) {
+      var a = Math.random() * 6.283, v = 4 + Math.random() * 9;
+      bits.push({
+        x: W / 2, y: H * .38, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5,
+        w: 5 + Math.random() * 6, h: 3 + Math.random() * 4, r: Math.random() * 6.28, vr: (Math.random() - .5) * .35,
+        c: COLORS[(Math.random() * COLORS.length) | 0], life: 1
+      });
+    }
+    if (!running) { running = true; requestAnimationFrame(frame); }
+  }
+  function drawPetal(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y); ctx.rotate(p.r);
+    ctx.globalAlpha = .38;
+    ctx.fillStyle = '#f3b941';
+    ctx.beginPath(); ctx.ellipse(0, 0, p.s * .45, p.s, 0, 0, 6.283); ctx.fill();
+    ctx.restore();
+  }
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < petals.length; i++) {
+      var p = petals[i];
+      p.sw += .015; p.x += p.vx + Math.sin(p.sw) * .35; p.y += p.vy; p.r += p.vr;
+      if (p.y > H + 20) petals[i] = makePetal(true);
+      drawPetal(p);
+    }
+    for (var j = bits.length - 1; j >= 0; j--) {
+      var b = bits[j];
+      b.vy += .28; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.r += b.vr; b.life -= .008;
+      if (b.life <= 0 || b.y > H + 20) { bits.splice(j, 1); continue; }
+      ctx.save();
+      ctx.translate(b.x, b.y); ctx.rotate(b.r);
+      ctx.globalAlpha = Math.min(1, b.life * 1.6);
+      ctx.fillStyle = b.c;
+      ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+      ctx.restore();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  init();
+  window.addEventListener('resize', init);
+  if (!reduce) { running = true; requestAnimationFrame(frame); }
+  else { for (var i = 0; i < petals.length; i++) drawPetal(petals[i]); }
+
+  document.getElementById('celebrate').addEventListener('click', function () {
+    if (reduce) return;
+    burst();
+  });
+})();
+</script>
