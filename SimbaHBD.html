@@ -1,28 +1,35 @@
 <title>Simbo's Birthday Card</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=Caveat:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=Caveat:wght@600&display=swap">
 <style>
-/* Layout: one calm column on a night-green ground. Meskel daisy petals drift behind; the letter is the centrepiece. */
+/* Layout: a folded card on a night-green ground. Tap the cover and it swings open like a real card.
+   Wide screens show the full spread (photos on the left page, message on the right).
+   Phones show the message page with the photos below it. */
 :root {
   --ground: #0e1c1d;
-  --surface: #162829;
-  --line: #28403f;
-  --ink: #f1ece2;
-  --muted: #a7b8b1;
+  --green: #1f5a45;
+  --sage: #6fb08a;
   --marigold: #f3b941;
-  --leaf: #6fb08a;
+  --cream: #f1ece2;
+  --page: #f6f1e6;
+  --page-back: #e9e0cd;
+  --ink: #1b2a2b;
+  --ink-soft: #4a5b57;
   --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
   --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-hand: "Caveat", "Segoe Script", "Bradley Hand", cursive;
+  --W: min(88vw, 380px);
+  --H: calc(var(--W) * 1.45);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body {
   background: var(--ground);
-  color: var(--ink);
+  color: var(--cream);
   font-family: var(--f-body);
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.65;
+  margin: 0;
   padding-block: 0;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -30,96 +37,211 @@ body {
   overflow-x: hidden;
 }
 #petals { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; padding-block: 48px 40px; }
 
-.hero { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
-.date {
-  font-family: var(--f-body); font-weight: 500; font-size: 13px; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--marigold); display: flex; align-items: center; gap: 10px;
+.stage {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  padding-block: 36px 56px; perspective: 1800px;
 }
-.date svg { width: 22px; height: 22px; flex: none; }
+.card {
+  position: relative; width: var(--W); height: var(--H);
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(.6, .1, .2, 1), height .8s ease;
+}
+
+/* ---- inside right page: the message ---- */
+.msg {
+  position: absolute; inset: 0; background: var(--page); color: var(--ink);
+  border: 10px solid var(--cream); border-radius: 4px; overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+}
+.msg-in { padding: 24px 20px 30px; display: flex; flex-direction: column; gap: 16px; }
+.eyebrow { margin: 0; font-weight: 500; font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--green); }
 h1 {
-  font-family: var(--f-display); font-weight: 800; font-size: clamp(2.9rem, 13vw, 5.4rem);
-  line-height: .98; letter-spacing: -.02em; margin: 0; text-wrap: balance;
+  margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(2rem, 9vw, 2.6rem);
+  line-height: 1; letter-spacing: -.02em; text-wrap: balance;
 }
-h1 span { color: var(--marigold); }
-.sub { color: var(--muted); margin: 0; max-width: 34ch; font-size: 1.08rem; }
-button.go {
-  font: inherit; font-weight: 500; font-size: 1rem; cursor: pointer;
-  background: var(--marigold); color: #1b1606; border: 0; border-radius: 999px;
-  padding: 13px 26px; margin-top: 6px; transition: transform .15s ease, background .15s ease;
+h1 span { color: #b57b00; }
+.msg p { margin: 0; }
+.to { font-family: var(--f-hand); font-size: 2.4rem; line-height: 1.05; color: var(--green); }
+.sign { font-family: var(--f-hand); font-size: 2.2rem; line-height: 1.1; color: var(--green); }
+
+/* ---- cover, which flips to the inside left page ---- */
+.cover {
+  position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(.6, .1, .2, 1), opacity .4s ease;
 }
-button.go:hover { transform: translateY(-2px); background: #f7c761; }
-button.go:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.front, .back {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border: 10px solid var(--cream); border-radius: 4px; box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+}
+.front {
+  background: var(--green); display: block; width: 100%; padding: 0; margin: 0; font: inherit; color: var(--cream);
+  cursor: pointer; overflow: hidden;
+}
+.front:focus-visible { outline: 3px solid var(--marigold); outline-offset: 4px; }
+.tap {
+  position: absolute; top: 9%; left: 0; right: 0; text-align: center;
+  font-family: var(--f-hand); font-size: 2.3rem; line-height: 1; color: var(--marigold);
+}
+.for {
+  position: absolute; bottom: 8%; left: 0; right: 0; text-align: center;
+  font-size: 14px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--cream);
+}
+.art { position: absolute; left: 50%; top: 50%; width: 62%; aspect-ratio: 1; transform: translate(-50%, -50%); }
+.art i { position: absolute; display: block; }
+.art .d1 { inset: 4%; background: var(--marigold); transform: rotate(45deg); border-radius: 6%; }
+.art .d2 { inset: 14%; background: var(--sage); border-radius: 26%; box-shadow: 0 10px 24px rgba(0, 0, 0, .3); }
+.art .d3 { inset: 28%; background: var(--cream); border-radius: 26%; box-shadow: 0 8px 18px rgba(0, 0, 0, .25); }
+.art svg { position: absolute; inset: 32%; width: 36%; height: 36%; }
 
-.letter { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: clamp(24px, 6vw, 44px); display: flex; flex-direction: column; gap: 18px; }
-.letter .to { font-family: var(--f-hand); font-size: 2rem; line-height: 1; color: var(--marigold); margin: 0; }
-.letter p { margin: 0; max-width: 60ch; }
-.letter .sign { font-family: var(--f-hand); font-size: 1.9rem; line-height: 1.1; color: var(--ink); margin-top: 6px; }
+.back { background: var(--page-back); transform: rotateY(180deg); padding: 22px 16px; display: flex; align-items: center; justify-content: center; }
 
-h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.5rem; letter-spacing: -.01em; margin: 0 0 6px; text-wrap: balance; }
-.wishes { display: flex; flex-direction: column; gap: 4px; }
-.wishes ul { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
-.wishes li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start; min-width: 0; }
-.wishes li svg { width: 28px; height: 28px; margin-top: 2px; }
-.wishes li b { display: block; font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; }
-.wishes li span { color: var(--muted); }
+.photos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+.ph {
+  margin: 0; background: #fff; padding: 6px 6px 6px; border-radius: 3px; aspect-ratio: 1;
+  box-shadow: 0 6px 16px rgba(27, 42, 43, .22); position: relative; overflow: hidden;
+}
+.ph:nth-child(odd) { transform: rotate(-2.2deg); }
+.ph:nth-child(even) { transform: rotate(1.8deg); }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph.empty { background: transparent; border: 2px dashed #a99d80; box-shadow: none; display: grid; place-items: center; }
+.ph.empty img { display: none; }
+.ph.empty::after { content: "Your photo"; font-family: var(--f-hand); font-size: 1.5rem; color: #8a7d5e; }
+.ph.gone { display: none; }
+.photos-wide { display: none; }
 
-.end { text-align: left; padding-top: 8px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
-.end .big { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.6rem, 7vw, 2.3rem); letter-spacing: -.01em; margin: 14px 0 0; text-wrap: balance; }
-.end p { margin: 0; color: var(--muted); }
+.close {
+  font: inherit; font-size: 16px; font-weight: 500; cursor: pointer;
+  background: transparent; color: var(--cream); border: 1px solid #3c5a57; border-radius: 999px; padding: 10px 22px;
+  opacity: 0; pointer-events: none; transition: opacity .4s ease .5s;
+}
+.close:hover { border-color: var(--marigold); color: var(--marigold); }
+.close:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
+.stage.open .close { opacity: 1; pointer-events: auto; }
 
+/* open state */
+.card.open .cover { transform: rotateY(-180deg); pointer-events: none; }
+.card.open .front { pointer-events: none; }
+@media (max-width: 899px) {
+  .card.open .cover { opacity: 0; transition: transform 1s cubic-bezier(.6, .1, .2, 1), opacity .3s ease .6s; }
+}
+@media (min-width: 900px) {
+  .card.open { transform: translateX(calc(var(--W) / 2)); }
+  .photos-wide { display: grid; }
+  .photos-narrow { display: none; }
+}
 @media (prefers-reduced-motion: no-preference) {
-  .hero > * { animation: rise .7s ease both; }
-  .hero > *:nth-child(2) { animation-delay: .08s; }
-  .hero > *:nth-child(3) { animation-delay: .16s; }
-  .hero > *:nth-child(4) { animation-delay: .24s; }
-  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .tap { animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .cover { transition: none; }
 }
 </style>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="daisy" viewBox="-20 -20 40 40">
-    <g fill="#f3b941">
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(45)"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(90)"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(135)"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(180)"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(225)"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(270)"/>
-      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(315)"/>
-    </g>
-    <circle r="4.6" fill="#6fb08a"/>
-  </symbol>
-</svg>
-
 <canvas id="petals" aria-hidden="true"></canvas>
 
-<main>
-  <header class="hero">
-    <div class="date"><svg><use href="#daisy"/></svg> November 19</div>
-    <h1>Happy birthday, <span>Simbo.</span></h1>
-    <button class="go" id="celebrate" type="button">Celebrate</button>
-  </header>
+<div class="stage" id="stage">
+  <div class="card" id="card">
+    <section class="msg" aria-label="A message for Simbo">
+      <div class="msg-in" id="msgIn">
+        <p class="eyebrow">November 19</p>
+        <h1>Happy birthday, <span>Simbo.</span></h1>
+        <p class="to">Yoooooo simbaaaaa 🥰🔥</p>
+        <p>Happy birthday, baga dhalattee baredduukoo! 🎉❤️</p>
+        <p>I hope this new year of your life brings you nothing but happiness, peace, success, and plenty of beautiful memories. You’re genuinely a great person to have around, and I’m really glad our friendship exists. ❤️</p>
+        <p>May everything you’re working and praying for come your way, and may this year be even better than the last one. Keep smiling, keep growing, and keep being the amazing person you are. 🫶✨</p>
+        <p>Enjoy your day to the fullest you deserve it! 🎂🥳</p>
+        <p class="sign">Happy Birthday once again, simbaaaaa! 🔥</p>
+        <div class="photos photos-narrow" id="photosNarrow"></div>
+      </div>
+    </section>
 
-  <section class="letter" aria-label="A letter for Simbo">
-    <p class="to">Yoooooo simbaaaaa 🥰🔥</p>
-    <p>Happy birthday, baga dhalattee baredduukoo! 🎉❤️</p>
-    <p>I hope this new year of your life brings you nothing but happiness, peace, success, and plenty of beautiful memories. You’re genuinely a great person to have around, and I’m really glad our friendship exists. ❤️</p>
-    <p>May everything you’re working and praying for come your way, and may this year be even better than the last one. Keep smiling, keep growing, and keep being the amazing person you are. 🫶✨</p>
-    <p>Enjoy your day to the fullest you deserve it! 🎂🥳</p>
-    <p class="sign">Happy Birthday once again, simbaaaaa! 🔥</p>
-  </section>
-</main>
+    <div class="cover" id="cover">
+      <button class="front" id="open" type="button" aria-label="Open the birthday card">
+        <span class="tap">Tap to open</span>
+        <span class="art" aria-hidden="true">
+          <i class="d1"></i><i class="d2"></i><i class="d3"></i>
+          <svg viewBox="-20 -20 40 40">
+            <g fill="#f3b941">
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(45)"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(90)"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(135)"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(180)"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(225)"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(270)"/>
+              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(315)"/>
+            </g>
+            <circle r="4.6" fill="#1f5a45"/>
+          </svg>
+        </span>
+        <span class="for">For Simbo</span>
+      </button>
+      <div class="back"><div class="photos photos-wide" id="photosWide"></div></div>
+    </div>
+  </div>
+  <button class="close" id="close" type="button">Close card</button>
+</div>
 
 <script>
 (function () {
+  /* PHOTOS: put your pictures in a folder called "photos" next to this file and name them 1.jpg, 2.jpg ...
+     Add or remove lines to change how many show. SHOW_EMPTY_FRAMES = false hides frames with no picture. */
+  var PHOTOS = [
+    { src: 'photos/1.jpg', alt: 'Simbo and me' },
+    { src: 'photos/2.jpg', alt: 'Simbo and me' },
+    { src: 'photos/3.jpg', alt: 'Simbo and me' },
+    { src: 'photos/4.jpg', alt: 'Simbo and me' }
+  ];
+  var SHOW_EMPTY_FRAMES = true;
+
+  function buildPhotos(el) {
+    PHOTOS.forEach(function (p) {
+      var f = document.createElement('figure'); f.className = 'ph';
+      var img = document.createElement('img'); img.alt = p.alt || ''; img.loading = 'lazy';
+      img.onerror = function () { f.classList.add(SHOW_EMPTY_FRAMES ? 'empty' : 'gone'); };
+      img.src = p.src;
+      f.appendChild(img); el.appendChild(f);
+    });
+  }
+  buildPhotos(document.getElementById('photosNarrow'));
+  buildPhotos(document.getElementById('photosWide'));
+
+  var stage = document.getElementById('stage');
+  var card = document.getElementById('card');
+  var msgIn = document.getElementById('msgIn');
+  var openBtn = document.getElementById('open');
+  var closeBtn = document.getElementById('close');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isOpen = false;
+
+  function fitHeight() {
+    if (!isOpen) { card.style.height = ''; return; }
+    var closedH = card.getBoundingClientRect().width * 1.45;
+    card.style.height = Math.max(closedH, msgIn.offsetHeight + 20) + 'px';
+  }
+  function setOpen(v) {
+    isOpen = v;
+    card.classList.toggle('open', v);
+    stage.classList.toggle('open', v);
+    openBtn.tabIndex = v ? -1 : 0;
+    fitHeight();
+    if (v) { burst(); closeBtn.focus({ preventScroll: true }); }
+    else { openBtn.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }
+  }
+  openBtn.addEventListener('click', function () { setOpen(true); });
+  closeBtn.addEventListener('click', function () { setOpen(false); });
+  window.addEventListener('resize', fitHeight);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
+  card.addEventListener('transitionend', fitHeight);
+
+  /* ---- drifting petals and confetti ---- */
   var canvas = document.getElementById('petals');
   var ctx = canvas.getContext('2d');
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var W = 0, H = 0, petals = [], bits = [], running = false;
+  var W = 0, H = 0, petals = [], bits = [];
   var COLORS = ['#f3b941', '#6fb08a', '#f1ece2', '#e48b5c'];
 
   function resize() {
@@ -141,15 +263,17 @@ h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.5rem; letter-
     for (var i = 0; i < n; i++) petals.push(makePetal(false));
   }
   function burst() {
+    if (reduce) return;
+    var rc = card.getBoundingClientRect();
+    var cx = Math.min(Math.max(rc.left + rc.width / 2, 0), W), cy = Math.min(Math.max(rc.top + 120, 80), H * .6);
     for (var i = 0; i < 110; i++) {
       var a = Math.random() * 6.283, v = 4 + Math.random() * 9;
       bits.push({
-        x: W / 2, y: H * .38, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5,
+        x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5,
         w: 5 + Math.random() * 6, h: 3 + Math.random() * 4, r: Math.random() * 6.28, vr: (Math.random() - .5) * .35,
         c: COLORS[(Math.random() * COLORS.length) | 0], life: 1
       });
     }
-    if (!running) { running = true; requestAnimationFrame(frame); }
   }
   function drawPetal(p) {
     ctx.save();
@@ -180,15 +304,9 @@ h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.5rem; letter-
     }
     requestAnimationFrame(frame);
   }
-
   init();
   window.addEventListener('resize', init);
-  if (!reduce) { running = true; requestAnimationFrame(frame); }
-  else { for (var i = 0; i < petals.length; i++) drawPetal(petals[i]); }
-
-  document.getElementById('celebrate').addEventListener('click', function () {
-    if (reduce) return;
-    burst();
-  });
+  if (!reduce) requestAnimationFrame(frame);
+  else { for (var k = 0; k < petals.length; k++) drawPetal(petals[k]); }
 })();
 </script>
