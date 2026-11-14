@@ -2,9 +2,9 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&family=Caveat:wght@600&display=swap">
 <style>
-/* Layout: a folded card on a night-green ground. Tap the cover and it swings open like a real card.
-   Wide screens show the full spread (photos on the left page, message on the right).
-   Phones show the message page with the photos below it. */
+/* Layout: a folded card on a night-green ground with three sheets: the cover, a leaf with the message,
+   and a last page with the photos. Each sheet swings open from the left edge like a real card.
+   Wide screens show the full spread; phones show one page at a time. */
 :root {
   --ground: #0e1c1d;
   --green: #1f5a45;
@@ -14,7 +14,6 @@
   --page: #f6f1e6;
   --page-back: #e9e0cd;
   --ink: #1b2a2b;
-  --ink-soft: #4a5b57;
   --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
   --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-hand: "Caveat", "Segoe Script", "Bradley Hand", cursive;
@@ -41,7 +40,7 @@ body {
 .stage {
   position: relative; z-index: 1;
   display: flex; flex-direction: column; align-items: center; gap: 22px;
-  padding-block: 36px 56px; perspective: 1800px;
+  padding-block: 36px 96px; perspective: 1800px;
 }
 .card {
   position: relative; width: var(--W); height: var(--H);
@@ -49,13 +48,14 @@ body {
   transition: transform 1s cubic-bezier(.6, .1, .2, 1), height .8s ease;
 }
 
-/* ---- inside right page: the message ---- */
+/* ---- paper faces ---- */
 .msg {
   position: absolute; inset: 0; background: var(--page); color: var(--ink);
   border: 10px solid var(--cream); border-radius: 4px; overflow: hidden;
   box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
 }
 .msg-in { padding: 24px 20px 30px; display: flex; flex-direction: column; gap: 16px; }
+.leaf .msg, .front, .back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .eyebrow { margin: 0; font-weight: 500; font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--green); }
 h1 {
   margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(2rem, 9vw, 2.6rem);
@@ -65,14 +65,21 @@ h1 span { color: #b57b00; }
 .msg p { margin: 0; }
 .to { font-family: var(--f-hand); font-size: 2.4rem; line-height: 1.05; color: var(--green); }
 .sign { font-family: var(--f-hand); font-size: 2.2rem; line-height: 1.1; color: var(--green); }
+.nav {
+  align-self: flex-start; font: inherit; font-size: 17px; font-weight: 500; cursor: pointer;
+  background: var(--green); color: var(--cream); border: 0; border-radius: 999px; padding: 12px 24px; margin-top: 4px;
+  transition: transform .15s ease, background .15s ease;
+}
+.nav:hover { transform: translateY(-2px); background: #27704f; }
+.nav:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
 
-/* ---- cover, which flips to the inside left page ---- */
-.cover {
+/* ---- cover and leaf both turn from the left edge ---- */
+.cover, .leaf {
   position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d;
   transition: transform 1s cubic-bezier(.6, .1, .2, 1), opacity .4s ease;
 }
 .front, .back {
-  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  position: absolute; inset: 0;
   border: 10px solid var(--cream); border-radius: 4px; box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
 }
 .front {
@@ -95,11 +102,18 @@ h1 span { color: #b57b00; }
 .art .d3 { inset: 28%; background: var(--cream); border-radius: 26%; box-shadow: 0 8px 18px rgba(0, 0, 0, .25); }
 .art svg { position: absolute; inset: 32%; width: 36%; height: 36%; }
 
-.back { background: var(--page-back); transform: rotateY(180deg); padding: 22px 16px; display: flex; align-items: center; justify-content: center; }
+.back { background: var(--page-back); transform: rotateY(180deg); overflow: hidden; }
+.back svg { position: absolute; display: block; }
+.b1 .big { width: 70%; height: 70%; left: 15%; top: 15%; }
+.b1 .s1 { width: 20%; height: 20%; left: 8%; top: 6%; transform: rotate(18deg); }
+.b1 .s2 { width: 16%; height: 16%; right: 9%; bottom: 7%; transform: rotate(-12deg); }
+.b2 .m1 { width: 38%; height: 38%; left: 8%; top: 8%; transform: rotate(10deg); }
+.b2 .m2 { width: 46%; height: 46%; left: 27%; top: 30%; transform: rotate(-8deg); }
+.b2 .m3 { width: 34%; height: 34%; right: 8%; bottom: 7%; transform: rotate(22deg); }
 
 .photos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
 .ph {
-  margin: 0; background: #fff; padding: 6px 6px 6px; border-radius: 3px; aspect-ratio: 1;
+  margin: 0; background: #fff; padding: 6px; border-radius: 3px; aspect-ratio: 1;
   box-shadow: 0 6px 16px rgba(27, 42, 43, .22); position: relative; overflow: hidden;
 }
 .ph:nth-child(odd) { transform: rotate(-2.2deg); }
@@ -109,130 +123,203 @@ h1 span { color: #b57b00; }
 .ph.empty img { display: none; }
 .ph.empty::after { content: "Your photo"; font-family: var(--f-hand); font-size: 1.5rem; color: #8a7d5e; }
 .ph.gone { display: none; }
-.photos-wide { display: none; }
 
-.close {
+.close, .song {
   font: inherit; font-size: 16px; font-weight: 500; cursor: pointer;
   background: transparent; color: var(--cream); border: 1px solid #3c5a57; border-radius: 999px; padding: 10px 22px;
-  opacity: 0; pointer-events: none; transition: opacity .4s ease .5s;
 }
-.close:hover { border-color: var(--marigold); color: var(--marigold); }
-.close:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
+.close:hover, .song:hover { border-color: var(--marigold); color: var(--marigold); }
+.close:focus-visible, .song:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
+.close { opacity: 0; pointer-events: none; transition: opacity .4s ease .5s; }
 .stage.open .close { opacity: 1; pointer-events: auto; }
+.song {
+  position: fixed; z-index: 5; background: #162829; display: flex; align-items: center; gap: 8px;
+  right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+.song svg { width: 18px; height: 18px; flex: none; }
 
-/* open state */
+/* open states */
 .card.open .cover { transform: rotateY(-180deg); pointer-events: none; }
-.card.open .front { pointer-events: none; }
+.card.p2 .leaf { transform: rotateY(-180deg) translateZ(-1px); pointer-events: none; }
 @media (max-width: 899px) {
-  .card.open .cover { opacity: 0; transition: transform 1s cubic-bezier(.6, .1, .2, 1), opacity .3s ease .6s; }
+  .card.open .cover, .card.p2 .leaf { opacity: 0; transition: transform 1s cubic-bezier(.6, .1, .2, 1), opacity .3s ease .6s; }
 }
 @media (min-width: 900px) {
   .card.open { transform: translateX(calc(var(--W) / 2)); }
-  .photos-wide { display: grid; }
-  .photos-narrow { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .tap { animation: pulse 2.2s ease-in-out infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
 }
 @media (prefers-reduced-motion: reduce) {
-  .card, .cover { transition: none; }
+  .card, .cover, .leaf { transition: none; }
 }
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="daisy" viewBox="-20 -20 40 40">
+    <g fill="#f3b941">
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(45)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(90)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(135)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(225)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(270)"/>
+      <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(315)"/>
+    </g>
+    <circle r="4.6" fill="#1f5a45"/>
+  </symbol>
+</svg>
+
 <canvas id="petals" aria-hidden="true"></canvas>
+<audio id="song" loop preload="none"></audio>
 
 <div class="stage" id="stage">
   <div class="card" id="card">
-    <section class="msg" aria-label="A message for Simbo">
-      <div class="msg-in" id="msgIn">
-        <p class="eyebrow">November 19</p>
-        <h1>Happy birthday, <span>Simbo.</span></h1>
-        <p class="to">Yoooooo simbaaaaa 🥰🔥</p>
-        <p>Happy birthday, baga dhalattee baredduukoo! 🎉❤️</p>
-        <p>I hope this new year of your life brings you nothing but happiness, peace, success, and plenty of beautiful memories. You’re genuinely a great person to have around, and I’m really glad our friendship exists. ❤️</p>
-        <p>May everything you’re working and praying for come your way, and may this year be even better than the last one. Keep smiling, keep growing, and keep being the amazing person you are. 🫶✨</p>
-        <p>Enjoy your day to the fullest you deserve it! 🎂🥳</p>
-        <p class="sign">Happy Birthday once again, simbaaaaa! 🔥</p>
-        <div class="photos photos-narrow" id="photosNarrow"></div>
+
+    <!-- last page: photos -->
+    <section class="msg photopage" id="photopage" aria-label="Photos">
+      <div class="msg-in" id="photoIn">
+        <div class="photos" id="photos"></div>
+        <button class="nav" id="back" type="button">&larr; Back</button>
       </div>
     </section>
 
+    <!-- leaf: message on the front, decoration on its back -->
+    <div class="leaf" id="leaf">
+      <section class="msg" aria-label="A message for Simbo">
+        <div class="msg-in" id="msgIn">
+          <p class="eyebrow">November 19</p>
+          <h1>Happy birthday, <span>Simbo.</span></h1>
+          <p class="to">Yoooooo simbaaaaa 🥰🔥</p>
+          <p>Happy birthday, baga dhalattee baredduukoo! 🎉❤️</p>
+          <p>I hope this new year of your life brings you nothing but happiness, peace, success, and plenty of beautiful memories. You’re genuinely a great person to have around, and I’m really glad our friendship exists. ❤️</p>
+          <p>May everything you’re working and praying for come your way, and may this year be even better than the last one. Keep smiling, keep growing, and keep being the amazing person you are. 🫶✨</p>
+          <p>Enjoy your day to the fullest you deserve it! 🎂🥳</p>
+          <p class="sign">Happy Birthday once again, simbaaaaa! 🔥</p>
+          <button class="nav" id="next" type="button">Next page &rarr;</button>
+        </div>
+      </section>
+      <div class="back b2" aria-hidden="true">
+        <svg class="m1" ><use href="#daisy"/></svg>
+        <svg class="m2" ><use href="#daisy"/></svg>
+        <svg class="m3" ><use href="#daisy"/></svg>
+      </div>
+    </div>
+
+    <!-- cover -->
     <div class="cover" id="cover">
       <button class="front" id="open" type="button" aria-label="Open the birthday card">
         <span class="tap">Tap to open</span>
         <span class="art" aria-hidden="true">
           <i class="d1"></i><i class="d2"></i><i class="d3"></i>
-          <svg viewBox="-20 -20 40 40">
-            <g fill="#f3b941">
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(45)"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(90)"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(135)"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(180)"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(225)"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(270)"/>
-              <ellipse cx="0" cy="-10" rx="3.6" ry="8" transform="rotate(315)"/>
-            </g>
-            <circle r="4.6" fill="#1f5a45"/>
-          </svg>
+          <svg><use href="#daisy"/></svg>
         </span>
         <span class="for">For Simbo</span>
       </button>
-      <div class="back"><div class="photos photos-wide" id="photosWide"></div></div>
+      <div class="back b1" aria-hidden="true">
+        <svg class="big" ><use href="#daisy"/></svg>
+        <svg class="s1" ><use href="#daisy"/></svg>
+        <svg class="s2" ><use href="#daisy"/></svg>
+      </div>
     </div>
   </div>
   <button class="close" id="close" type="button">Close card</button>
 </div>
 
+<button class="song" id="songBtn" type="button" hidden>
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3v12.3A3.5 3.5 0 1 0 11 18.5V8h7V3H9z"/></svg>
+  <span id="songLabel">Play song</span>
+</button>
+
 <script>
 (function () {
-  /* PHOTOS: put your pictures in a folder called "photos" next to this file and name them 1.jpg, 2.jpg ...
+  /* SONG: keep song.mp3 next to this file, or set another file name here. Leave it empty ('') for no music.
+     PHOTOS: keep 1.jpg, 2.jpg ... next to this file (a folder called "photos" also works).
      Add or remove lines to change how many show. SHOW_EMPTY_FRAMES = false hides frames with no picture. */
+  var SONG = 'song.mp3';
   var PHOTOS = [
-    { src: 'photos/1.jpg', alt: 'Simbo and me' },
-    { src: 'photos/2.jpg', alt: 'Simbo and me' },
-    { src: 'photos/3.jpg', alt: 'Simbo and me' },
-    { src: 'photos/4.jpg', alt: 'Simbo and me' }
+    { src: '1.jpg', alt: 'Simbo and me' },
+    { src: '2.jpg', alt: 'Simbo and me' },
+    { src: '3.jpg', alt: 'Simbo and me' },
+    { src: '4.jpg', alt: 'Simbo and me' }
   ];
   var SHOW_EMPTY_FRAMES = true;
 
-  function buildPhotos(el) {
-    PHOTOS.forEach(function (p) {
-      var f = document.createElement('figure'); f.className = 'ph';
-      var img = document.createElement('img'); img.alt = p.alt || ''; img.loading = 'lazy';
-      img.onerror = function () { f.classList.add(SHOW_EMPTY_FRAMES ? 'empty' : 'gone'); };
-      img.src = p.src;
-      f.appendChild(img); el.appendChild(f);
-    });
-  }
-  buildPhotos(document.getElementById('photosNarrow'));
-  buildPhotos(document.getElementById('photosWide'));
+  var photosEl = document.getElementById('photos');
+  PHOTOS.forEach(function (p) {
+    var f = document.createElement('figure'); f.className = 'ph';
+    var img = document.createElement('img'); img.alt = p.alt || ''; img.loading = 'lazy';
+    img.onerror = function () {
+      if (!img.dataset.retry) { img.dataset.retry = '1'; img.src = 'photos/' + p.src; return; }
+      f.classList.add(SHOW_EMPTY_FRAMES ? 'empty' : 'gone');
+    };
+    img.src = p.src;
+    f.appendChild(img); photosEl.appendChild(f);
+  });
 
   var stage = document.getElementById('stage');
   var card = document.getElementById('card');
+  var leaf = document.getElementById('leaf');
+  var photopage = document.getElementById('photopage');
   var msgIn = document.getElementById('msgIn');
+  var photoIn = document.getElementById('photoIn');
   var openBtn = document.getElementById('open');
+  var nextBtn = document.getElementById('next');
+  var backBtn = document.getElementById('back');
   var closeBtn = document.getElementById('close');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var isOpen = false;
+  var state = 0; /* 0 closed, 1 message, 2 photos */
+
+  /* ---- song ---- */
+  var audio = document.getElementById('song');
+  var songBtn = document.getElementById('songBtn');
+  var songLabel = document.getElementById('songLabel');
+  function songUI() { songLabel.textContent = audio.paused ? 'Play song' : 'Pause song'; }
+  audio.addEventListener('play', songUI);
+  audio.addEventListener('pause', songUI);
+  audio.addEventListener('error', function () { songBtn.hidden = true; });
+  if (SONG) audio.src = SONG;
+  function startSong() {
+    if (!SONG) return;
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function () { songBtn.hidden = false; songUI(); })
+       .catch(function () { if (!audio.error) { songBtn.hidden = false; songUI(); } });
+    }
+  }
+  songBtn.addEventListener('click', function () {
+    if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+  });
 
   function fitHeight() {
-    if (!isOpen) { card.style.height = ''; return; }
+    if (state === 0) { card.style.height = ''; return; }
     var closedH = card.getBoundingClientRect().width * 1.45;
-    card.style.height = Math.max(closedH, msgIn.offsetHeight + 20) + 'px';
+    var content = state === 1 ? msgIn.offsetHeight : photoIn.offsetHeight;
+    card.style.height = Math.max(closedH, content + 20) + 'px';
   }
-  function setOpen(v) {
-    isOpen = v;
-    card.classList.toggle('open', v);
-    stage.classList.toggle('open', v);
-    openBtn.tabIndex = v ? -1 : 0;
+  function setState(n) {
+    var was = state;
+    state = n;
+    card.classList.toggle('open', n >= 1);
+    card.classList.toggle('p2', n === 2);
+    stage.classList.toggle('open', n >= 1);
+    leaf.inert = n !== 1;
+    photopage.inert = n !== 2;
+    openBtn.tabIndex = n ? -1 : 0;
     fitHeight();
-    if (v) { burst(); closeBtn.focus({ preventScroll: true }); }
-    else { openBtn.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }
+    if (n >= 1 && was === 0) { burst(); startSong(); }
+    if (n === 0) audio.pause();
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    var target = n === 0 ? openBtn : n === 1 ? nextBtn : backBtn;
+    target.focus({ preventScroll: true });
   }
-  openBtn.addEventListener('click', function () { setOpen(true); });
-  closeBtn.addEventListener('click', function () { setOpen(false); });
+  leaf.inert = true; photopage.inert = true;
+  openBtn.addEventListener('click', function () { setState(1); });
+  nextBtn.addEventListener('click', function () { setState(2); });
+  backBtn.addEventListener('click', function () { setState(1); });
+  closeBtn.addEventListener('click', function () { setState(0); });
   window.addEventListener('resize', fitHeight);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
   card.addEventListener('transitionend', fitHeight);
