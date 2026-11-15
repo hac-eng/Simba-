@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Simbo's Birthday Card</title>
@@ -126,19 +129,50 @@ h1 span { color: #b57b00; }
 .ph.empty::after { content: "Your photo"; font-family: var(--f-hand); font-size: 1.5rem; color: #8a7d5e; }
 .ph.gone { display: none; }
 
-.close, .song {
+.close {
   font: inherit; font-size: 16px; font-weight: 500; cursor: pointer;
   background: transparent; color: var(--cream); border: 1px solid #3c5a57; border-radius: 999px; padding: 10px 22px;
+  opacity: 0; pointer-events: none; transition: opacity .4s ease .5s;
 }
-.close:hover, .song:hover { border-color: var(--marigold); color: var(--marigold); }
-.close:focus-visible, .song:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
-.close { opacity: 0; pointer-events: none; transition: opacity .4s ease .5s; }
+.close:hover { border-color: var(--marigold); color: var(--marigold); }
+.close:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
 .stage.open .close { opacity: 1; pointer-events: auto; }
-.song {
-  position: fixed; z-index: 5; background: #162829; display: flex; align-items: center; gap: 8px;
-  right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px));
+
+/* ---- gift gate: cake with candles, then a 3-2-1 countdown, then the card appears ---- */
+.stage { opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 0s linear 1s; }
+body.live .stage { opacity: 1; visibility: visible; transition: opacity 1s ease; }
+.gate {
+  position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; text-align: center; transition: opacity .9s ease;
+  padding: 24px max(20px, env(safe-area-inset-right, 0px)) 24px max(20px, env(safe-area-inset-left, 0px));
 }
-.song svg { width: 18px; height: 18px; flex: none; }
+.gate.done { opacity: 0; pointer-events: none; }
+.cake { width: min(62vw, 270px); height: auto; overflow: visible; display: block; }
+.flame { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .5s ease, opacity .5s ease; }
+.glow { transition: opacity .5s ease; }
+.gate.out .flame { animation: none; transform: scale(0); opacity: 0; }
+.gate.out .glow { opacity: 0; }
+.gate-eyebrow { margin: 0; font-weight: 500; font-size: 15px; letter-spacing: .18em; text-transform: uppercase; color: var(--marigold); }
+.gate-title {
+  margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(2.2rem, 10vw, 3rem);
+  line-height: 1.02; letter-spacing: -.02em; color: var(--cream); text-wrap: balance;
+}
+.slot { display: grid; justify-items: center; align-items: center; min-height: 200px; width: 100%; }
+.slot > * { grid-area: 1 / 1; transition: opacity .4s ease; }
+.ask { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.gate.counting .ask { opacity: 0; pointer-events: none; }
+.count {
+  opacity: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(7rem, 36vw, 10.5rem);
+  line-height: 1; color: var(--marigold);
+}
+.gate.counting .count { opacity: 1; }
+.go {
+  font: inherit; font-weight: 500; font-size: 1.2rem; cursor: pointer;
+  background: var(--marigold); color: #1b1606; border: 0; border-radius: 999px;
+  padding: 17px 38px; transition: transform .15s ease, background .15s ease;
+}
+.go:hover { transform: translateY(-2px); background: #f7c761; }
+.go:focus-visible { outline: 3px solid var(--cream); outline-offset: 4px; }
 
 /* open states */
 .card.open .cover { transform: rotateY(-180deg); pointer-events: none; }
@@ -152,12 +186,21 @@ h1 span { color: #b57b00; }
 @media (prefers-reduced-motion: no-preference) {
   .tap { animation: pulse 2.2s ease-in-out infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+  .flame { animation: flick 1.1s ease-in-out infinite alternate; }
+  .flame.f2 { animation-delay: -.4s; }
+  .flame.f3 { animation-delay: -.8s; }
+  @keyframes flick { from { transform: scale(1, 1) rotate(-3deg); } to { transform: scale(.9, 1.14) rotate(3deg); } }
+  .go { animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  .count.pop { animation: pop .9s cubic-bezier(.2, .9, .3, 1) both; }
+  @keyframes pop { from { transform: scale(1.8); opacity: 0; } 35% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
 }
 @media (prefers-reduced-motion: reduce) {
   .card, .cover, .leaf { transition: none; }
 }
 </style>
-
+</head>
+<body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="daisy" viewBox="-20 -20 40 40">
     <g fill="#f3b941">
@@ -175,7 +218,42 @@ h1 span { color: #b57b00; }
 </svg>
 
 <canvas id="petals" aria-hidden="true"></canvas>
-<audio id="song" loop preload="none"></audio>
+<audio id="song" loop preload="auto"></audio>
+
+<div class="gate" id="gate">
+  <svg class="cake" viewBox="0 0 200 190" aria-hidden="true">
+    <defs>
+      <radialGradient id="gl"><stop offset="0" stop-color="#f3b941" stop-opacity=".5"/><stop offset="1" stop-color="#f3b941" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g class="glow">
+      <circle cx="81" cy="34" r="26" fill="url(#gl)"/>
+      <circle cx="100" cy="34" r="26" fill="url(#gl)"/>
+      <circle cx="119" cy="34" r="26" fill="url(#gl)"/>
+    </g>
+    <ellipse cx="100" cy="176" rx="92" ry="9" fill="#28403f"/>
+    <rect x="24" y="112" width="152" height="60" rx="12" fill="#6fb08a"/>
+    <rect x="24" y="112" width="152" height="18" rx="9" fill="#f1ece2"/>
+    <circle cx="46" cy="130" r="8" fill="#f1ece2"/><circle cx="86" cy="132" r="9" fill="#f1ece2"/>
+    <circle cx="128" cy="130" r="8" fill="#f1ece2"/><circle cx="160" cy="131" r="7" fill="#f1ece2"/>
+    <rect x="54" y="72" width="92" height="44" rx="10" fill="#f3b941"/>
+    <rect x="54" y="72" width="92" height="15" rx="7.5" fill="#f1ece2"/>
+    <circle cx="74" cy="87" r="7" fill="#f1ece2"/><circle cx="104" cy="88" r="8" fill="#f1ece2"/><circle cx="130" cy="87" r="6" fill="#f1ece2"/>
+    <rect x="77" y="44" width="8" height="30" rx="2" fill="#f1ece2"/><rect x="96" y="44" width="8" height="30" rx="2" fill="#f1ece2"/><rect x="115" y="44" width="8" height="30" rx="2" fill="#f1ece2"/>
+    <rect x="77" y="52" width="8" height="4" fill="#1f5a45"/><rect x="96" y="52" width="8" height="4" fill="#1f5a45"/><rect x="115" y="52" width="8" height="4" fill="#1f5a45"/>
+    <rect x="77" y="62" width="8" height="4" fill="#1f5a45"/><rect x="96" y="62" width="8" height="4" fill="#1f5a45"/><rect x="115" y="62" width="8" height="4" fill="#1f5a45"/>
+    <g class="flame f1"><path d="M81 22 C88 31 89 38 81 43 C73 38 74 31 81 22Z" fill="#f3b941"/><path d="M81 31 C84.5 35 85 38.5 81 41 C77 38.5 77.5 35 81 31Z" fill="#e48b5c"/></g>
+    <g class="flame f2"><path d="M100 22 C107 31 108 38 100 43 C92 38 93 31 100 22Z" fill="#f3b941"/><path d="M100 31 C103.5 35 104 38.5 100 41 C96 38.5 96.5 35 100 31Z" fill="#e48b5c"/></g>
+    <g class="flame f3"><path d="M119 22 C126 31 127 38 119 43 C111 38 112 31 119 22Z" fill="#f3b941"/><path d="M119 31 C122.5 35 123 38.5 119 41 C115 38.5 115.5 35 119 31Z" fill="#e48b5c"/></g>
+  </svg>
+  <p class="gate-eyebrow">November 19</p>
+  <div class="slot">
+    <div class="ask">
+      <h2 class="gate-title">Simbo, you have<br>a gift.</h2>
+      <button class="go" id="gift" type="button">Open your gift</button>
+    </div>
+    <div class="count" id="count" aria-live="polite"></div>
+  </div>
+</div>
 
 <div class="stage" id="stage">
   <div class="card" id="card">
@@ -213,7 +291,7 @@ h1 span { color: #b57b00; }
     <!-- cover -->
     <div class="cover" id="cover">
       <button class="front" id="open" type="button" aria-label="Open the birthday card">
-        <span class="tap">Tap to open</span>
+        <span class="tap">Happy birthday</span>
         <span class="art" aria-hidden="true">
           <i class="d1"></i><i class="d2"></i><i class="d3"></i>
           <svg><use href="#daisy"/></svg>
@@ -229,11 +307,6 @@ h1 span { color: #b57b00; }
   </div>
   <button class="close" id="close" type="button">Close card</button>
 </div>
-
-<button class="song" id="songBtn" type="button" hidden>
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3v12.3A3.5 3.5 0 1 0 11 18.5V8h7V3H9z"/></svg>
-  <span id="songLabel">Play song</span>
-</button>
 
 <script>
 (function () {
@@ -274,26 +347,25 @@ h1 span { color: #b57b00; }
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var state = 0; /* 0 closed, 1 message, 2 photos */
 
-  /* ---- song ---- */
+  /* ---- song: starts when the gift is opened and keeps playing until the page is closed ---- */
   var audio = document.getElementById('song');
-  var songBtn = document.getElementById('songBtn');
-  var songLabel = document.getElementById('songLabel');
-  function songUI() { songLabel.textContent = audio.paused ? 'Play song' : 'Pause song'; }
-  audio.addEventListener('play', songUI);
-  audio.addEventListener('pause', songUI);
-  audio.addEventListener('error', function () { songBtn.hidden = true; });
-  if (SONG) audio.src = SONG;
+  var musicOn = false, audioRetries = 0;
+  if (SONG) { audio.src = SONG; audio.load(); }
+  function keepPlaying() {
+    if (musicOn && audio.paused) { var q = audio.play(); if (q && q.catch) q.catch(function () {}); }
+  }
   function startSong() {
     if (!SONG) return;
     var p = audio.play();
-    if (p && p.then) {
-      p.then(function () { songBtn.hidden = false; songUI(); })
-       .catch(function () { if (!audio.error) { songBtn.hidden = false; songUI(); } });
-    }
+    if (p && p.catch) p.catch(function () {});
   }
-  songBtn.addEventListener('click', function () {
-    if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+  audio.addEventListener('pause', function () { if (!audio.ended) setTimeout(keepPlaying, 200); });
+  audio.addEventListener('ended', function () { audio.currentTime = 0; keepPlaying(); });
+  audio.addEventListener('error', function () {
+    if (musicOn && audioRetries++ < 3) setTimeout(function () { audio.load(); keepPlaying(); }, 800);
   });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) keepPlaying(); });
+  document.addEventListener('pointerdown', keepPlaying);
 
   function fitHeight() {
     if (state === 0) { card.style.height = ''; return; }
@@ -311,8 +383,7 @@ h1 span { color: #b57b00; }
     photopage.inert = n !== 2;
     openBtn.tabIndex = n ? -1 : 0;
     fitHeight();
-    if (n >= 1 && was === 0) { burst(); startSong(); }
-    if (n === 0) audio.pause();
+    if (n >= 1 && was === 0) burst();
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
     var target = n === 0 ? openBtn : n === 1 ? nextBtn : backBtn;
     target.focus({ preventScroll: true });
@@ -325,6 +396,42 @@ h1 span { color: #b57b00; }
   window.addEventListener('resize', fitHeight);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
   card.addEventListener('transitionend', fitHeight);
+
+  /* ---- gift gate: tap, count 3-2-1, then the card appears and opens by itself ---- */
+  var gate = document.getElementById('gate');
+  var giftBtn = document.getElementById('gift');
+  var countEl = document.getElementById('count');
+  var gateBusy = false;
+  stage.inert = true;
+  function showCount(n) {
+    countEl.textContent = n;
+    countEl.classList.remove('pop');
+    void countEl.offsetWidth;
+    countEl.classList.add('pop');
+  }
+  giftBtn.addEventListener('click', function () {
+    if (gateBusy) return;
+    gateBusy = true;
+    musicOn = true;
+    startSong();
+    gate.classList.add('counting');
+    var n = 3;
+    showCount(n);
+    var t = setInterval(function () {
+      n--;
+      if (n > 0) {
+        showCount(n);
+        if (n === 1) setTimeout(function () { gate.classList.add('out'); }, 450);
+        return;
+      }
+      clearInterval(t);
+      gate.classList.add('done');
+      document.body.classList.add('live');
+      stage.inert = false;
+      burst();
+      setTimeout(function () { setState(1); }, 1700);
+    }, 1000);
+  });
 
   /* ---- drifting petals and confetti ---- */
   var canvas = document.getElementById('petals');
@@ -399,3 +506,6 @@ h1 span { color: #b57b00; }
   else { for (var k = 0; k < petals.length; k++) drawPetal(petals[k]); }
 })();
 </script>
+
+</body>
+</html>
